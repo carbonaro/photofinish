@@ -1,0 +1,18 @@
+{
+  "author": "Philippe Breuils <philippe.breuils@gmail.com>",
+  "name": "photofinish",
+  "description": "Sensor assisted webcam controller",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/carbonaro/photofinish.git"
+  },
+  "dependencies": {
+    "restify": "*",
+    "socket.io": "*",
+    "chokidar": "~0.8.0"
+  },
+  "engines": {
+    "node": ">=0.10"
+  }
+}
