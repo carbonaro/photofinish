@@ -28,6 +28,13 @@ apiServer.get('/photos', function getPhotos(req, res, next) {
   });
 });
 
+apiServer.get('/photos/:name', function getPhoto(req, res, next) {
+  Photo.info(req.params.name, function(error, result) {
+    res.send(200, result);
+    return next();
+  });
+});
+
 logger.info('API Server listening on port', API_PORT);
 apiServer.listen(API_PORT);
 

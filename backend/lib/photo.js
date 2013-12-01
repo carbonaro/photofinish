@@ -11,12 +11,10 @@ module.exports = (function() {
     return re.test(path.basename(f));
   }
 
-  _getInfo = function(name, fn) {
-    console.log(6, name);
+  _getStat = function(name, fn) {
     var filePath = name;
     if (path.basename(name) == name) filePath = _workingDir + '/' + name;
-    console.log(5, filePath);
-    return im.readMetadata(filePath, fn);
+    return fs.statSync(filePath);
   }
 
   _listAll = function() {
@@ -42,7 +40,12 @@ module.exports = (function() {
     },
 
     'info': function(name, fn) {
-      return _getInfo(name, fn);
+      var photo = {name: name, stat: _getStat(name)};
+      return im.identify(['-format', '%wx%h', _workingDir + '/' + photo.name], function(err,format) {
+        if (err) return fn(err);
+        photo.format = format;
+        return fn(null, photo);
+      });
     },
 
     // Valid options {limit: 10}
