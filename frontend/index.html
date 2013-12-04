@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html ng-app="photofinish">
+<head>
+<meta charset='utf-8'/>
+<title>Photofinish</title>
+<link href="css/style.css" rel="stylesheet" type="text/css">
+<script src="bower_components/angular/angular.min.js" type="text/javascript"></script>
+<script src="bower_components/angular-resource/angular-resource.min.js" type="text/javascript"></script>
+<script src="bower_components/angular-animate/angular-animate.min.js" type="text/javascript"></script>
+<script src="js/socket.io.min.js" type="text/javascript"></script>
+<script src="js/photofinish.js" type="text/javascript"></script>
+</head>
+<body>
+  <div class="container" class="ng-cloak" ng-controller="PhotofinishCtrl">
+    <div class="photo" ng-repeat="photo in photos">
+      <img ng-dblclick="askDelete(photo)" ng-src="shared/{{photo.name}}" width="480" ng-class="{'first': $first}"/>
+    </div>
+  </div>
+</body>
+</html>

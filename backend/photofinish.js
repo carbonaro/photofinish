@@ -6,10 +6,31 @@ var restify = require('restify')
 
 var logger = require('./lib/logger');
 
+// Run with -d switch for development mode
+//
+// in development mode, sockets are bound to apiServer (restify) so we can
+// use http://localhost:API_PORT to run the tests (as of Dec 1st 2013, pow.cx does not handle ws)
+// in development mode, we use node >= 0.8 with a high enough version of restify so as to
+// support serveStatic
+//
+// this is not possible in production (e.g. on a Raspberry Pi) where the packaged node engine version
+// is 0.6.19
+//
+// don't forget to link / copy package.json.dev
+var development = (process.argv.indexOf("-d") == -1) ? false : true;
+
+process.exit(0);
+
 // App constants
 var API_PORT = 8000;
 var SOCKETIO_PORT = 8001;
 var WATCH_FOLDER = '../shared';
+
+if (!development) {
+  var arduino = require('./lib/arduino');
+  var webcam = require('./lib/webcam');
+  webcam.setWorkingFolder(WATCH_FOLDER);
+}
 
 var Photo = require('./lib/photo');
 Photo.setWorkingFolder(WATCH_FOLDER);
@@ -21,36 +42,81 @@ var apiServer = restify.createServer({
   name: 'PhotoFinish',
 });
 
-apiServer.get('/photos', function getPhotos(req, res, next) {
+apiServer.get('/api/photos', function getPhotos(req, res, next) {
   Photo.all(function(error, results) {
-    res.send(200, results);
+    if (error) return next(error);
+    res.send(results);
     return next();
   });
 });
 
-apiServer.get('/photos/:name', function getPhoto(req, res, next) {
+apiServer.get('/api/photos/:name', function getPhoto(req, res, next) {
   Photo.info(req.params.name, function(error, result) {
-    res.send(200, result);
+    if (error) return next(error);
+    res.send(result);
     return next();
   });
 });
+
+apiServer.del('/api/photos/:name', function deletePhoto(req, res, next) {
+  if (Photo.destroy(req.params.name)) {
+    res.send(204);
+    return next();
+  } else {
+    return next(new Error("could not destroy file " + req.params.name));
+  }
+});
+
+// Used for development, needs node >= 0.8
+if (development) {
+  apiServer.get(/.*/, restify.serveStatic({
+    directory: '../frontend',
+    default: 'index.html'
+  }));
+}
 
 logger.info('API Server listening on port', API_PORT);
 apiServer.listen(API_PORT);
 
 // Websocket Server
-logger.info('Websocket Server listening on port', SOCKETIO_PORT);
+logger.info('Websocket Server listening on port', API_PORT);
 
-var io = socketio.listen(SOCKETIO_PORT, {
-  'log level': 1,
+var socketBind;
+if (!development)
+  socketBind = SOCKETIO_PORT;
+else
+  socketBind = apiServer;
+
+var io = socketio.listen(socketBind, {
+  'log level': 0,
   'logger': logger
 });
 
+io.sockets.on('connection', function (socket) {
+  socket.emit('init', { hello: 'world' });
+});
+
 // Directory Watcher
-var watcher = chokidar.watch(WATCH_FOLDER, {persistent: true});
+var watcher = chokidar.watch(WATCH_FOLDER, {persistent: true, usePolling: true});
 
 watcher
   .on('add', function(filePath) {
     if (!Photo.isValid(filePath)) return; // not a valid file format? skip this one
-    io.sockets.emit('call.added', {name: path.basename(filePath)});
+    io.sockets.emit('photo.added', {name: path.basename(filePath)});
   });
+
+// Arduino plumbing
+if (!development) {
+  arduino.connect(function(err, serialPort) {
+    if (err) {
+      console.log(err);
+    } else {
+      serialPort.on('data', function(data) {
+        parseSerialData(data);
+        if (arduino.motionDetected(data)) {
+          webcam.takeSnapshot();
+        }
+      });
+    }
+  });
+}
