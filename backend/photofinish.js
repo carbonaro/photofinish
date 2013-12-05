@@ -26,12 +26,14 @@ var WATCH_FOLDER = '../shared';
 
 var webcam = require('./lib/webcam');
 webcam.setWorkingFolder(WATCH_FOLDER);
+webcam.setLogger(logger);
 
 var Photo = require('./lib/photo');
 Photo.setWorkingFolder(WATCH_FOLDER);
 
 if (!development) {
   var arduino = require('./lib/arduino');
+  arduino.setLogger(logger);
 }
 
 logger.info('Photofinish starting...');
@@ -106,7 +108,7 @@ else
 
 var io = socketio.listen(socketBind, {
   'log level': 0,
-  'logger': logger
+  'log': false
 });
 
 io.sockets.on('connection', function (socket) {
@@ -129,7 +131,6 @@ if (!development) {
       console.log(err);
     } else {
       serialPort.on('data', function(data) {
-        parseSerialData(data);
         if (arduino.motionDetected(data)) {
           io.sockets.emit('motion.detected', {});
           if (webcam.isArmed()) {

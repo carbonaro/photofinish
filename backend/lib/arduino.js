@@ -2,7 +2,13 @@ module.exports = (function () {
   var serial = require('serialport')
     , child = require('child_process');
 
+  var _logger;
+
   return {
+    'logger': function(l) {
+      _logger = l;
+    },
+
     'connect': function connectToArduino(callback) {
         // Seems to work on a mac and on a Raspberry Pi
         child.exec('ls /dev | grep -E "tty\.usb|ttyACM0"', function(err, stdout, stderr){
@@ -16,12 +22,12 @@ module.exports = (function () {
                 parser: serial.parsers.readline("\n")
               });
             } catch (e) {
-              console.log(e);
+              _logger.error("arduino: error",e);
               err = e;
             }
             if (!err) {
               found = tempSerial;
-              console.log('found board at /dev/' + possible[i]);
+              logger.info('arduino: found board at /dev/' + possible[i]);
               break;
             }
           }
