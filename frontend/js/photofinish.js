@@ -2,6 +2,13 @@ angular.module('photofinish', ['ngResource', 'ngAnimate']).
 factory('Photo', ['$resource', function($resource){
   return $resource('api/photos/:name', {name: '@name'});
 }]).
+factory('Webcam', ['$resource', function($resource){
+  return $resource('api/webcam', {},
+    {info: {method: 'GET', isArray: false, params:{get_info: true}},
+     arm: {method: 'POST', params: {arm: true}},
+     disarm: {method: 'POST', params:{disarm: true}}}
+  );
+}]).
 factory('socket', function ($rootScope) {
   var socket = io.connect();
   return {
@@ -25,11 +32,9 @@ factory('socket', function ($rootScope) {
     }
   };
 }).
-controller('PhotofinishCtrl', ['$scope', 'socket', 'Photo', function($scope, socket, Photo) {
+controller('PhotofinishCtrl', ['$scope', 'socket', 'Photo', 'Webcam', function($scope, socket, Photo, Webcam) {
   $scope.photos = [];
-  $scope.$watch('photos.length', function(newLength, oldLength) {
-    //
-  });
+  $scope.webcam = Webcam;
 
   $scope.askDelete = function(photo) {
     var message = "Etes-vous sûr(e) de vouloir supprimer la photo?";
@@ -43,11 +48,28 @@ controller('PhotofinishCtrl', ['$scope', 'socket', 'Photo', function($scope, soc
     });
   };
 
+  $scope.armWebcam = function() {
+    Webcam.arm();
+  }
+
+  $scope.disarmWebcam = function() {
+    Webcam.disarm();
+  }
+
   socket.on('init', function(data) {
     $scope.photos = Photo.query();
+    $scope.webcamInfo = Webcam.info();
   });
 
   socket.on('photo.added', function(newPhoto) {
     $scope.photos.unshift(new Photo({name: newPhoto.name}));
+  });
+
+  socket.on('webcam.status_change', function(info) {
+    $scope.webcamInfo.status = info.status;
+  });
+
+  socket.on('motion.detected', function(data) {
+    console.log("motion detected");
   });
 }]);

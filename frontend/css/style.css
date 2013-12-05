@@ -26,3 +26,15 @@
 .photo.ng-enter.ng-enter-active {
   opacity: 1;
 }
+#control-panel {
+  font-family: Verdana;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+#control-panel .armed {
+  color: #41DD4B;
+}
+#control-panel .disarmed {
+  color: #333;
+}
