@@ -27,7 +27,7 @@ module.exports = (function () {
             }
             if (!err) {
               found = tempSerial;
-              logger.info('arduino: found board at /dev/' + possible[i]);
+              _logger.info('arduino: found board at /dev/' + possible[i]);
               break;
             }
           }
