@@ -19,21 +19,20 @@ var logger = require('./lib/logger');
 // don't forget to link / copy package.json.dev
 var development = (process.argv.indexOf("-d") == -1) ? false : true;
 
-process.exit(0);
-
 // App constants
 var API_PORT = 8000;
 var SOCKETIO_PORT = 8001;
 var WATCH_FOLDER = '../shared';
 
-if (!development) {
-  var arduino = require('./lib/arduino');
-  var webcam = require('./lib/webcam');
-  webcam.setWorkingFolder(WATCH_FOLDER);
-}
+var webcam = require('./lib/webcam');
+webcam.setWorkingFolder(WATCH_FOLDER);
 
 var Photo = require('./lib/photo');
 Photo.setWorkingFolder(WATCH_FOLDER);
+
+if (!development) {
+  var arduino = require('./lib/arduino');
+}
 
 logger.info('Photofinish starting...');
 
@@ -41,6 +40,7 @@ logger.info('Photofinish starting...');
 var apiServer = restify.createServer({
   name: 'PhotoFinish',
 });
+apiServer.use(restify.queryParser());
 
 apiServer.get('/api/photos', function getPhotos(req, res, next) {
   Photo.all(function(error, results) {
@@ -65,6 +65,23 @@ apiServer.del('/api/photos/:name', function deletePhoto(req, res, next) {
   } else {
     return next(new Error("could not destroy file " + req.params.name));
   }
+});
+
+apiServer.get('/api/webcam', function getWebcamStatus(req, res, next) {
+  var result = (req.params.get_info) ? {status: webcam.status()} : [];
+  res.send(result);
+  return next();
+});
+
+apiServer.post('/api/webcam', function getWebcamStatus(req, res, next) {
+  if (req.params.arm) {
+    webcam.arm();
+  } else if (req.params.disarm) {
+    webcam.disarm();
+  }
+  io.sockets.emit('webcam.status_change', {status: webcam.status()});
+  res.send(200);
+  return next();
 });
 
 // Used for development, needs node >= 0.8
@@ -114,7 +131,12 @@ if (!development) {
       serialPort.on('data', function(data) {
         parseSerialData(data);
         if (arduino.motionDetected(data)) {
-          webcam.takeSnapshot();
+          io.sockets.emit('motion.detected', {});
+          if (webcam.isArmed()) {
+            webcam.takeSnapshot();
+            webcam.disarm();
+            io.sockets.emit('webcam.status_change', {status: webcam.status()});
+          }
         }
       });
     }
