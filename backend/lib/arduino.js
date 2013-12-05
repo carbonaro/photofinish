@@ -5,7 +5,7 @@ module.exports = (function () {
   var _logger;
 
   return {
-    'logger': function(l) {
+    'setLogger': function(l) {
       _logger = l;
     },
 

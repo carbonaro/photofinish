@@ -3,7 +3,7 @@ module.exports = (function() {
   var _workingDir, _armed = false, _logger;
 
   return {
-    'logger': function(l) {
+    'setLogger': function(l) {
       _logger = l;
     },
 
@@ -18,7 +18,8 @@ module.exports = (function() {
         _logger.error('webcam stderr: ' + stderr);
         if (error !== null) {
           _logger.error('webcam exec error: ' + error);
-        });
+        }
+      });
     },
 
     'status': function() {
