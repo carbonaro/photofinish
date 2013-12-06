@@ -30,11 +30,18 @@
   font-family: Verdana;
   font-size: 10px;
   font-weight: bold;
-  text-align: center;
+  text-align: left;
 }
 #control-panel .armed {
   color: #41DD4B;
 }
 #control-panel .disarmed {
   color: #333;
+}
+.huge {
+  font-size: 20px;
+  color: #eee;
+}
+.motion-detected {
+  color: red;
 }

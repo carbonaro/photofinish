@@ -32,9 +32,11 @@ factory('socket', function ($rootScope) {
     }
   };
 }).
-controller('PhotofinishCtrl', ['$scope', 'socket', 'Photo', 'Webcam', function($scope, socket, Photo, Webcam) {
+controller('PhotofinishCtrl', ['$scope', '$timeout', 'socket', 'Photo', 'Webcam',
+                              function($scope, $timeout, socket, Photo, Webcam) {
   $scope.photos = [];
   $scope.webcam = Webcam;
+  $scope.motionDetected = false;
 
   $scope.askDelete = function(photo) {
     var message = "Etes-vous sûr(e) de vouloir supprimer la photo?";
@@ -62,7 +64,9 @@ controller('PhotofinishCtrl', ['$scope', 'socket', 'Photo', 'Webcam', function($
   });
 
   socket.on('photo.added', function(newPhoto) {
-    $scope.photos.unshift(new Photo({name: newPhoto.name}));
+    $timeout(function() {
+      $scope.photos.unshift(new Photo({name: newPhoto.name}));
+    }, 2000);
   });
 
   socket.on('webcam.status_change', function(info) {
@@ -70,6 +74,9 @@ controller('PhotofinishCtrl', ['$scope', 'socket', 'Photo', 'Webcam', function($
   });
 
   socket.on('motion.detected', function(data) {
-    console.log("motion detected");
+    $scope.motionDetected = true;
+    $timeout(function() {
+      $scope.motionDetected = false;
+    }, 3500);
   });
 }]);

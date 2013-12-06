@@ -13,13 +13,14 @@
 <body>
   <div class="container" class="ng-cloak" ng-controller="PhotofinishCtrl">
     <div id="control-panel">
-      <div>
-        <button ng-show='webcamInfo.status == "armed"' ng-click='disarmWebcam()'>Désarmement des tobbogans</button>
-        <button ng-show='webcamInfo.status == "disarmed"' ng-click='armWebcam()'>Armement</button>
-      </div>
-      <div>
+      <div style='display:inline' class='huge' ng-class="{'motion-detected': motionDetected}">&middot;</div>
+      <div style='display:inline'>
         <span ng-show='webcamInfo.status == "armed"' class='armed'>PIC*</span>
         <span ng-show='webcamInfo.status == "disarmed"' class='disarmed'>PIC</span>
+      </div>
+      <div style='display:inline'>
+        <button ng-show='webcamInfo.status == "armed"' ng-click='disarmWebcam()'>Désarmement des tobbogans</button>
+        <button ng-show='webcamInfo.status == "disarmed"' ng-click='armWebcam()'>Armement</button>
       </div>
     </div>
     <div class="photo" ng-repeat="photo in photos">
