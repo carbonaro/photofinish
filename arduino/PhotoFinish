@@ -1,18 +1,21 @@
 int pirPin = 2; //digital 2
 
 void setup(){
- Serial.begin(9600); 
+ Serial.begin(9600);
  pinMode(pirPin, INPUT);
- Serial.println("Motion Zob Started");
+ digitalWrite(pirPin, HIGH); // turn on pullup resistors
+ Serial.println("Motion Detection Started");
 }
-
 
 void loop(){
   int pirVal = digitalRead(pirPin);
 
-  if(pirVal == LOW){ //was motion detected
-    Serial.println("Motion Detected"); 
-    delay(4000); 
+  if(pirVal == LOW){ // was motion detected
+    delay(500);
+    if (pirVal == LOW) { // to eliminate false positive results
+      Serial.println("Motion Detected");
+      delay(3000);
+    }
   }
 
 }

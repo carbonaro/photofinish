@@ -132,6 +132,7 @@ if (!development) {
     } else {
       serialPort.on('data', function(data) {
         if (arduino.motionDetected(data)) {
+          logger.debug('[socket.io] sending motion.detected event');
           io.sockets.emit('motion.detected', {});
           if (webcam.isArmed()) {
             webcam.takeSnapshot();

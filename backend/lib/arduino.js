@@ -36,7 +36,10 @@ module.exports = (function () {
         });
       },
     'motionDetected': function(serialData) {
-      return (/Motion Detected/.test(serialData));
+      _logger.debug("[arduino] - serial: " + serialData);
+      var motionDetected = /Motion Detected/.test(serialData);
+      if (motionDetected) _logger.info("[arduino] presence detected");
+      return (motionDetected);
     }
   }
 })();
