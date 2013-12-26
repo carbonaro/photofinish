@@ -12,8 +12,9 @@ module.exports = (function() {
     },
 
     'takeSnapshot': function() {
-      var cmd = "fswebcam -d /dev/video0 -r 960x720 " + _workingDir + "/" + new Date().getTime() + ".jpg";
-      exec(cmd, function (error, stdout, stderr) {
+       //var cmd = "fswebcam -d /dev/video0 -r 960x720 " + _workingDir + "/" + new Date().getTime() + ".mjepg --set brightness=64 --set sharpness=0 --set contrast=0% --set 'Backlight Compensation'=1 -F 15";
+       var cmd = "fswebcam -d /dev/video0 -F 3 " + _workingDir + "/" + new Date().getTime() + ".jpg --set brightness=64 --set sharpness=0 --set contrast=0% --set 'Backlight Compensation'=1";
+       exec(cmd, function (error, stdout, stderr) {
         _logger.debug('webcam stdout: ' + stdout);
         _logger.error('webcam stderr: ' + stderr);
         if (error !== null) {

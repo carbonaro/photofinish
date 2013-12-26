@@ -23,8 +23,8 @@
         <button ng-show='webcamInfo.status == "disarmed"' ng-click='armWebcam()'>Armement</button>
       </div>
     </div>
-    <div class="photo" ng-repeat="photo in photos">
-      <img ng-dblclick="askDelete(photo)" ng-src="shared/{{photo.name}}" width="480" ng-class="{'first': $first}"/>
+    <div class="photo" ng-repeat="photo in photos" style="margin-left:120px">
+      <img ng-dblclick="askDelete(photo)" ng-src="shared/{{photo.name}}" width="720" ng-class="{'first': $first}"/>
     </div>
   </div>
 </body>
