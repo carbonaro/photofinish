@@ -13,7 +13,9 @@
     "chokidar": "*",
     "winston": "*",
     "imagemagick": "~0.1.3",
-    "sync": "~0.2.2"
+    "sync": "~0.2.2",
+    "cheerio": "*",
+    "nodemailer": "*"
   },
   "engines": {
     "node": "~0.10"

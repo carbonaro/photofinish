@@ -16,4 +16,4 @@ node_modules
 shared/*
 *DS_Store*
 backend/package.json
-
+backend/lib/config.js

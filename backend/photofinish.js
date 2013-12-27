@@ -2,9 +2,11 @@ var restify = require('restify')
   , chokidar = require('chokidar')
   , socketio = require('socket.io')
   , path = require('path')
-  , http = require('http');
+  , http = require('http')
+  , nodemailer = require('nodemailer');
 
 var logger = require('./lib/logger');
+var config = require('./lib/config');
 
 // Run with -d switch for development mode
 //
@@ -25,6 +27,10 @@ var SOCKETIO_PORT = 8001;
 var WATCH_FOLDER = '../shared';
 
 var webcam = require('./lib/webcam');
+webcam.setWorkingFolder(WATCH_FOLDER);
+webcam.setLogger(logger);
+
+var gopro = require('./lib/gopro');
 webcam.setWorkingFolder(WATCH_FOLDER);
 webcam.setLogger(logger);
 
@@ -137,6 +143,32 @@ if (!development) {
           if (webcam.isArmed()) {
             webcam.takeSnapshot();
             webcam.disarm();
+            gopro.getSnapshot(50, function() {
+              setTimeout(function() {
+                gopro.downloadLatestImage(function(err, img) {
+                  // ready to send email
+                  var attachments = [
+                  {
+                    fileName: img,
+                    filePath: WATCH_FOLDER + '/' + img
+                  }];
+                  config.mailOptions.attachments = attachments;
+                  var transport = nodemailer.createTransport("sendmail");
+                  var now = new Date();
+                  var d = now.getDate();
+                  var m = now.getMonth();
+                  var y = now.getFullYear();
+                  config.mailOptions.subject = "Photofinish " + d + "/" + m + "/" + y + " ✔";
+                  transport.sendMail(config.mailOptions, function(error, response){
+                    if(error){
+                      logger.error(error);
+                    } else {
+                      logger.info("email sent: " + response.message);
+                    }
+                  });
+                });
+              }, 2000);
+            });
             io.sockets.emit('webcam.status_change', {status: webcam.status()});
           }
         }

@@ -1,0 +1,11 @@
+// this is a template for lib/config.js
+config = {};
+config.mailOptions = {
+  from: "Foo Bar <foo.bar@localhost>", // sender address
+  to: "John Doe <john.doe@simbusiness.com", // list of receivers
+  subject: "Whatever", // Subject line
+  text: "It's here", // plaintext body
+  html: "<b>It's here</b>", // html body
+};
+
+module.exports = config;
