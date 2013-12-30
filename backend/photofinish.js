@@ -31,8 +31,8 @@ webcam.setWorkingFolder(WATCH_FOLDER);
 webcam.setLogger(logger);
 
 var gopro = require('./lib/gopro');
-webcam.setWorkingFolder(WATCH_FOLDER);
-webcam.setLogger(logger);
+gopro.setWorkingFolder(WATCH_FOLDER);
+gopro.setLogger(logger);
 
 var Photo = require('./lib/photo');
 Photo.setWorkingFolder(WATCH_FOLDER);
@@ -143,32 +143,34 @@ if (!development) {
           if (webcam.isArmed()) {
             webcam.takeSnapshot();
             webcam.disarm();
-            gopro.getSnapshot(50, function() {
-              setTimeout(function() {
-                gopro.downloadLatestImage(function(err, img) {
-                  // ready to send email
-                  var attachments = [
-                  {
-                    fileName: img,
-                    filePath: WATCH_FOLDER + '/' + img
-                  }];
-                  config.mailOptions.attachments = attachments;
-                  var transport = nodemailer.createTransport("sendmail");
-                  var now = new Date();
-                  var d = now.getDate();
-                  var m = now.getMonth();
-                  var y = now.getFullYear();
-                  config.mailOptions.subject = "Photofinish " + d + "/" + m + "/" + y + " ✔";
-                  transport.sendMail(config.mailOptions, function(error, response){
-                    if(error){
-                      logger.error(error);
-                    } else {
-                      logger.info("email sent: " + response.message);
-                    }
+            setTimeout(function() {
+              gopro.getSnapshot(50, function() {
+                setTimeout(function() {
+                  gopro.downloadLatestImage(function(err, img) {
+                    // ready to send email
+                    var attachments = [
+                    {
+                      fileName: img,
+                      filePath: WATCH_FOLDER + '/' + img
+                    }];
+                    config.mailOptions.attachments = attachments;
+                    var transport = nodemailer.createTransport("sendmail");
+                    var now = new Date();
+                    var d = now.getDate();
+                    var m = now.getMonth();
+                    var y = now.getFullYear();
+                    config.mailOptions.subject = "Photofinish " + d + "/" + m + "/" + y + " ✔";
+                    transport.sendMail(config.mailOptions, function(error, response){
+                      if(error){
+                        logger.error(error);
+                      } else {
+                        logger.info("email sent: " + response.message);
+                      }
+                    });
                   });
-                });
-              }, 2000);
-            });
+                }, 2000);
+              });
+            }, 400); // We use a 400ms delay before taking snapshot
             io.sockets.emit('webcam.status_change', {status: webcam.status()});
           }
         }
