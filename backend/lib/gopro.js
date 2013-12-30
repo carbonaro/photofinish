@@ -111,7 +111,12 @@ module.exports = (function() {
               _logger.info('[gopro] saved ' + imgName);
               var cmd = "convert " + _workingDir + '/tmp/' + imgName;
               cmd += " -fill white -undercolor '#00000080' -pointsize 72 -gravity SouthEast -annotate +5+5 '";
-              cmd += timestamp;
+              var now = new Date();
+              var d = now.getDate();
+              var m = now.getMonth();
+              var months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+              var y = now.getFullYear();
+              cmd += "le " + d + " " + months[m] + " " + y + " à " + now.getHours() + ':' + now.getMinutes();
               cmd += "' " + _workingDir + '/' + imgName;
               _logger.debug("[gopro] adding timestamp with cmd: " + cmd);
               exec(cmd, function (error, stdout, stderr) {
