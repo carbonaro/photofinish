@@ -144,7 +144,7 @@ if (!development) {
             webcam.takeSnapshot();
             webcam.disarm();
             setTimeout(function() {
-              gopro.getSnapshot(50, function() {
+              gopro.getSnapshot(20, function() {
                 setTimeout(function() {
                   gopro.downloadLatestImage(function(err, img) {
                     // ready to send email

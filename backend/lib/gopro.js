@@ -1,5 +1,6 @@
 module.exports = (function() {
   var http = require('http');
+  var exec = require('child_process').exec;
   var cheerio = require('cheerio');
   var fs = require('fs');
 
@@ -105,10 +106,24 @@ module.exports = (function() {
 
           res.on('end', function(){
             var imgName = image.name.toLowerCase();
-            fs.writeFile(_workingDir + '/' + imgName, imagedata, 'binary', function(err){
+            fs.writeFile(_workingDir + '/tmp/' + imgName, imagedata, 'binary', function(err){
               if (err) throw err;
               _logger.info('[gopro] saved ' + imgName);
-              return fn(null, imgName);
+              var cmd = "convert " + _workingDir + '/tmp/' + imgName;
+              cmd += " -fill white -undercolor '#00000080' -pointsize 72 -gravity SouthEast -annotate +5+5 '";
+              cmd += timestamp;
+              cmd += "' " + _workingDir + '/' + imgName;
+              _logger.debug("[gopro] adding timestamp with cmd: " + cmd);
+              exec(cmd, function (error, stdout, stderr) {
+                 _logger.debug('gopro convert stdout: ' + stdout);
+                 _logger.error('gopro convert stderr: ' + stderr);
+                 if (error !== null) {
+                   _logger.error('gopro convert exec error: ' + error);
+                 }
+                 _logger.debug("[gopro] deleting tmp image " + _workingDir + '/tmp/' + imgName);
+                 fs.unlinkSync(_workingDir + '/tmp/' + imgName);
+                 return fn(null, imgName);
+              });
             });
           });
         }).end();

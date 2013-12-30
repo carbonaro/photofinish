@@ -13,7 +13,7 @@ results
 
 npm-debug.log
 node_modules
-shared/*
+shared/*.jpg
 *DS_Store*
 backend/package.json
 backend/lib/config.js
