@@ -170,7 +170,7 @@ if (!development) {
                   });
                 }, 2000);
               });
-            }, 400); // We use a 400ms delay before taking snapshot
+            }, 250); // We use a 400ms delay before taking snapshot
             io.sockets.emit('webcam.status_change', {status: webcam.status()});
           }
         }
