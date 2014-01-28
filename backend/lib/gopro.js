@@ -116,7 +116,9 @@ module.exports = (function() {
               var m = now.getMonth();
               var months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
               var y = now.getFullYear();
-              cmd += "le " + d + " " + months[m] + " " + y + " à " + now.getHours() + ':' + now.getMinutes();
+              var minutes = now.getMinutes();
+              minutes = (minutes < 10) ?  "0" + minutes : "" + minutes;
+              cmd += "le " + d + " " + months[m] + " " + y + " à " + now.getHours() + ':' + minutes;
               cmd += "' " + _workingDir + '/' + imgName;
               _logger.debug("[gopro] adding timestamp with cmd: " + cmd);
               exec(cmd, function (error, stdout, stderr) {
