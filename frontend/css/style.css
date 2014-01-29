@@ -31,6 +31,8 @@
   font-size: 10px;
   font-weight: bold;
   text-align: left;
+  margin-bottom: 10px;
+  text-align:center;
 }
 #control-panel .armed {
   color: #41DD4B;
@@ -44,4 +46,8 @@
 }
 .motion-detected {
   color: red;
+}
+button {
+  height: 100px;
+  width: 250px;
 }
